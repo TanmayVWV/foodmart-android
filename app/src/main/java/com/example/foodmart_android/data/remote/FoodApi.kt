@@ -1,11 +1,11 @@
 package com.example.foodmart_android.data.remote
-import com.example.foodmart_android.data.remote.dto.FoodItemDto
-import com.example.foodmart_android.data.remote.dto.FoodCategoryDto
+import com.example.foodmart_android.data.model.FoodItem
+import com.example.foodmart_android.data.model.FoodCategory
 import retrofit2.http.GET
 
 interface FoodApi{
-    @GET("food-items.json")
-    suspend fun getFoodItems(): List<FoodItemDto>
-    @GET("food-categories.json")
-    suspend fun getFoodCategories(): List<FoodCategoryDto>
+    @GET("food_items.json")
+    suspend fun getFoodItems(): List<FoodItem>
+    @GET("food_item_categories.json")
+    suspend fun getFoodCategories(): List<FoodCategory>
 }
