@@ -17,7 +17,7 @@ data class FoodUiState(
     val allItems: List<FoodItem> = emptyList(),
     val displayedItems: List<FoodItem> = emptyList(),
     val categories: List<FoodCategory> = emptyList(),
-    val selectedCategoryUuid: String? = null,
+    val selectedCategoryUuids: Set<String> = emptySet(),
     val error: String? = null
 
     )
@@ -41,7 +41,7 @@ class FoodViewModel : ViewModel(){
                     allItems = items,
                     displayedItems = items,
                     categories = cat,
-                    selectedCategoryUuid = null
+                    selectedCategoryUuids = emptySet()
                     
                 )
 
@@ -55,18 +55,40 @@ class FoodViewModel : ViewModel(){
 
         }
     }
-    fun onCategorySelected(CategoryUuid: String?){
-        val filteredList = if(CategoryUuid == null){
-            uiState.allItems
-        }else{
-            uiState.allItems.filter { it.categoryUuid == CategoryUuid }
-        }
-        uiState = uiState.copy(
-            displayedItems = filteredList,
-            selectedCategoryUuid = CategoryUuid
-        )
+    fun onCategoryToggled(categoryUuid: String?){
+        if (categoryUuid == null){
+            uiState = uiState.copy(
+                displayedItems = uiState.allItems,
+                selectedCategoryUuids = emptySet()
+            )
+            return
 
         }
+        val currentSelection = uiState.selectedCategoryUuids
+        val newSelection = if(currentSelection.contains(categoryUuid)){
+            currentSelection - categoryUuid
+        }else{
+            currentSelection + categoryUuid
+        }
+        val newDisplayed =
+            if(newSelection.isEmpty()){
+                uiState.allItems
+            }else{
+                uiState.allItems.filter { item ->
+                    newSelection.contains(item.categoryUuid)
+                }
+            }
+        uiState = uiState.copy(
+            displayedItems = newDisplayed,
+            selectedCategoryUuids = newSelection
+        )
+
+
+
+
+        }
+
+
     }
 
     
