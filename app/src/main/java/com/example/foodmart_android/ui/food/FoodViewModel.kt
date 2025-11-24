@@ -6,12 +6,13 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.foodmart_android.data.FoodRepository
+import com.example.foodmart_android.data.FoodRepositoryImpl
 import com.example.foodmart_android.data.model.FoodCategory
 import com.example.foodmart_android.data.model.FoodItem
 import com.example.foodmart_android.data.remote.RetrofitInstance
 import kotlinx.coroutines.launch
 
-
+// ui state for food screen
 data class FoodUiState(
     val isLoading: Boolean = false,
     val allItems: List<FoodItem> = emptyList(),
@@ -21,15 +22,17 @@ data class FoodUiState(
     val error: String? = null
 
     )
-class FoodViewModel : ViewModel(){
-    private val repository = FoodRepository(
-        RetrofitInstance.api
-    )
+// view model for food screen
+class FoodViewModel(
+    private val repository: FoodRepository = FoodRepositoryImpl(RetrofitInstance.api)
+) : ViewModel(){
+
     var uiState by mutableStateOf(FoodUiState())
         private set
     init{
         load()
     }
+    // loads data from repo
     fun load(){
         viewModelScope.launch {
             uiState = uiState.copy(isLoading = true, error = null)
@@ -55,6 +58,7 @@ class FoodViewModel : ViewModel(){
 
         }
     }
+    // toggles category selection
     fun onCategoryToggled(categoryUuid: String?){
         if (categoryUuid == null){
             uiState = uiState.copy(
@@ -65,11 +69,13 @@ class FoodViewModel : ViewModel(){
 
         }
         val currentSelection = uiState.selectedCategoryUuids
+        // add or remove category from selection
         val newSelection = if(currentSelection.contains(categoryUuid)){
             currentSelection - categoryUuid
         }else{
             currentSelection + categoryUuid
         }
+        // update displayed items based on selection
         val newDisplayed =
             if(newSelection.isEmpty()){
                 uiState.allItems
@@ -82,14 +88,5 @@ class FoodViewModel : ViewModel(){
             displayedItems = newDisplayed,
             selectedCategoryUuids = newSelection
         )
-
-
-
-
-        }
-
-
     }
-
-    
-
+}

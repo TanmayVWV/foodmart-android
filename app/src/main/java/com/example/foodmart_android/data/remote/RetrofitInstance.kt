@@ -7,6 +7,8 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 
+
+// retrofit setup for loading data
 object RetrofitInstance {
     private const val BASE_URL = "https://7shifts.github.io/mobile-takehome/api/"
 

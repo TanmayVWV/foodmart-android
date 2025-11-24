@@ -23,7 +23,8 @@ import com.example.foodmart_android.data.model.FoodItem
 fun FoodScreen(viewModel: FoodViewModel = viewModel()) {
     val state = viewModel.uiState
     var showFilter by remember { mutableStateOf(false) }
-
+    
+    // shows filter sheet
     if (showFilter) {
         FilterSheet(
             categories = state.categories,
@@ -50,11 +51,12 @@ fun FoodContent(
     onRetry: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    // main content : shows loading, error, grid
     Box(modifier = modifier.fillMaxSize().padding(horizontal = 16.dp)) {
         when {
             state.isLoading -> LoadingView()
             state.error != null -> ErrorView(message = state.error, onRetry = onRetry)
-            else -> FoodGrid(items = state.displayedItems)
+            else -> FoodGrid(items = state.displayedItems, categories = state.categories)
         }
     }
 }
@@ -62,6 +64,7 @@ fun FoodContent(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FoodTopBar(onFilterClick: () -> Unit) {
+    // top bar with filter button
     CenterAlignedTopAppBar(
         title = { Text("Food Mart") },
         actions = {
@@ -80,6 +83,7 @@ fun FilterSheet(
     onToggle: (String) -> Unit,
     onDismiss: () -> Unit
 ) {
+    // bottom sheet for filtering
     ModalBottomSheet(onDismissRequest = onDismiss) {
         LazyColumn(
             modifier = Modifier
@@ -108,15 +112,6 @@ fun FilterSheet(
                         .padding(vertical = 12.dp)
                 )
             }
-            item {
-                Spacer(modifier = Modifier.height(24.dp))
-                Button(
-                    onClick = onDismiss,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("Apply")
-                }
-            }
         }
     }
 }
@@ -130,6 +125,7 @@ fun LoadingView() {
 
 @Composable
 fun ErrorView(message: String, onRetry: () -> Unit) {
+    // shows error message and retry button
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
@@ -142,20 +138,25 @@ fun ErrorView(message: String, onRetry: () -> Unit) {
 }
 
 @Composable
-fun FoodGrid(items: List<FoodItem>) {
+fun FoodGrid(items: List<FoodItem>, categories: List<FoodCategory>) {
+    // grid of all items
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
         modifier = Modifier.fillMaxSize()
     ) {
-        items(items) { item -> FoodItemCard(item) }
+        items(items) { item ->
+            val categoryName = categories.find { it.uuid == item.categoryUuid }?.name ?: ""
+            FoodItemCard(item, categoryName)
+        }
     }
 }
 
 @Composable
-fun FoodItemCard(foodItem: FoodItem) {
+fun FoodItemCard(foodItem: FoodItem, categoryName: String) {
     Card(
+        // card for each item showing image + price + name + category
         modifier = Modifier.fillMaxWidth().height(200.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
@@ -176,6 +177,11 @@ fun FoodItemCard(foodItem: FoodItem) {
                     text = foodItem.name,
                     style = MaterialTheme.typography.bodyMedium,
                     maxLines = 1
+                )
+                Text(
+                    text = categoryName,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                 )
             }
         }

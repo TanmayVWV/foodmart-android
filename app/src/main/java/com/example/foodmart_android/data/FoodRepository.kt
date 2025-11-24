@@ -1,16 +1,23 @@
 package com.example.foodmart_android.data
 
-import com.example.foodmart_android.data.model.FoodItem
 import com.example.foodmart_android.data.model.FoodCategory
+import com.example.foodmart_android.data.model.FoodItem
 import com.example.foodmart_android.data.remote.FoodApi
 
-class FoodRepository(
-    private val api: FoodApi
-) {
+// repo for loading items and categories
+interface FoodRepository {
+    suspend fun getFoodItems(): List<FoodItem>
+    suspend fun getCategories(): List<FoodCategory>
+}
 
-    suspend fun getFoodItems(): List<FoodItem> =
+// implementation of repo
+class FoodRepositoryImpl(
+    private val api: FoodApi
+) : FoodRepository {
+
+    override suspend fun getFoodItems(): List<FoodItem> =
         api.getFoodItems()
 
-    suspend fun getCategories(): List<FoodCategory> =
+    override suspend fun getCategories(): List<FoodCategory> =
         api.getFoodCategories()
 }
