@@ -99,18 +99,27 @@ fun FilterSheet(
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
             }
-            items(categories) { category ->
+            // Added key for stability and switched to Row + Switch layout
+            items(categories, key = { it.uuid }) { category ->
                 val isSelected = selectedIds.contains(category.uuid)
-                Text(
-                    text = category.name,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
-                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable { onToggle(category.uuid) }
-                        .padding(vertical = 12.dp)
-                )
+                        .padding(vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = category.name,
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                    // Passive switch to avoid state conflicts
+                    Switch(
+                        checked = isSelected,
+                        onCheckedChange = null
+                    )
+                }
             }
         }
     }
@@ -169,7 +178,7 @@ fun FoodItemCard(foodItem: FoodItem, categoryName: String) {
             )
             Column(modifier = Modifier.padding(12.dp)) {
                 Text(
-                    text = "$${foodItem.price}",
+                    text = String.format("$%.2f", foodItem.price),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
